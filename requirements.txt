@@ -1,0 +1,9 @@
+nose
+sphinx
+re
+urllib.request
+bs4
+user_agent
+pymysql
+random
+time
