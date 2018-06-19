@@ -11,8 +11,8 @@ import time
 
 #Every record in the file has and ID, the main query 
 #search for unprocessed songs within a range from Min to Max limits
-MIN_LIMIT = 515010
-MAX_LIMIT = 515020
+MIN_LIMIT = 386686
+MAX_LIMIT = 515580
 #It is defined to make a pause every 150 songs tried 
 PAUSE_THRESHOLD = 150
 #It is going to pause for ten seconds
@@ -233,7 +233,7 @@ def database_conn():
         conn = pymysql.connect("musicmood-instance.ctjjankvidir.us-east-1.rds.amazonaws.com",user_id,user_password,dbname)
         return conn
     except Exception as e:
-        return "Exception occurred \n" +str(e)
+        print("Exception occurred \n" +str(e))
 
 #Default None values
 def ifnull(var, val):
@@ -315,11 +315,16 @@ def choosepath(row):
 #Retrieve the Songs from the database
 def get_songs():
     #Load song names and artists from  SQLite
-    db = database_conn()
-    c = db.cursor()
-    c.execute('SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics IS NULL order by year desc'.\
-        format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT))
-    return c.fetchall()
+    try:
+        db = database_conn()
+        c = db.cursor()
+        sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics IS NULL order by year desc'.\
+        format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT)
+        #print(sql)
+        c.execute(sql)
+        return c.fetchall()
+    except Exception as e:
+        print("[DB Exception]: " + str(e))    
 
 #Convert the lyrics in one line of text
 def format_lyric(lyric):
@@ -331,12 +336,12 @@ def format_lyric(lyric):
 
 #Store the lyrics in the database
 def set_lyric(id, lyric, source):
-    lyric = format_lyric(lyric)
-    db = database_conn()
-    c = db.cursor()
-    sql = 'UPDATE songs_dataset SET lyrics = "{lyrics}", source = {source} WHERE id = {id}' .\
-    format(lyrics=lyric, source = source, id=id) 
     try:
+        lyric = format_lyric(lyric)
+        db = database_conn()
+        c = db.cursor()
+        sql = 'UPDATE songs_dataset SET lyrics = "{lyrics}", source = {source} WHERE id = {id}' .\
+        format(lyrics=lyric, source = source, id=id) 
         #print(sql)
         c.execute(sql)
         db.commit()
@@ -353,6 +358,7 @@ def main():
         cont = MIN_LIMIT;
         print("Welcome!")
         rows = get_songs()
+        print("Tracks: " + str(len(rows)))
         #Iterate through all the songs getting the lyrics
         for row in rows:
             print("["+str(row[0])+"]:"+row[2]+" by "+row[3])
