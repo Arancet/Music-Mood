@@ -4,14 +4,15 @@ import re
 import urllib.request
 from bs4 import BeautifulSoup
 from user_agent import generate_user_agent
+from cryptography.fernet import Fernet
 import pymysql
 import random
 import time
 
 #Every record in the file has and ID, the main query 
 #search for unprocessed songs within a range from Min to Max limits
-MIN_LIMIT = 301
-MAX_LIMIT = 3500
+MIN_LIMIT = 515010
+MAX_LIMIT = 515020
 #It is defined to make a pause every 150 songs tried 
 PAUSE_THRESHOLD = 150
 #It is going to pause for ten seconds
@@ -208,11 +209,26 @@ def URL_Processing(URL, useproxy):
             print("[Exception Processing]: " + str(e))
             return "NA"          
 
+#Uncode the secret license file
+def unencrypt():
+    try:
+        key = b'IXx5rHfP15FqP4ahx2pwcud-XmcBzU553Ri6p-nVhnc=' #Fernet.generate_key()
+        cipher_suite = Fernet(key)
+        with open('/usr/local/etc/musicmood_bytes.bin', 'rb') as file_object:
+            for line in file_object:
+                encryptedpwd = line
+        uncipher_text = (cipher_suite.decrypt(encryptedpwd))
+        plain_text_encryptedpassword = bytes(uncipher_text).decode("utf-8") #convert to string
+        return plain_text_encryptedpassword
+    except Exception as e:
+        print(str(e))
+        return "Error"   
+
 #Setup the database connection
 def database_conn():
     try:
         user_id = 'marcelo'
-        user_password = 'marcelo'
+        user_password = unencrypt()
         dbname = 'musicmood'
         conn = pymysql.connect("musicmood-instance.ctjjankvidir.us-east-1.rds.amazonaws.com",user_id,user_password,dbname)
         return conn
