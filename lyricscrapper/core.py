@@ -8,6 +8,8 @@ from cryptography.fernet import Fernet
 import pymysql
 import random
 import time
+import json
+from collections import namedtuple
 
 #Every record in the file has and ID, the main query 
 #search for unprocessed songs within a range from Min to Max limits
@@ -219,7 +221,8 @@ def unencrypt():
                 encryptedpwd = line
         uncipher_text = (cipher_suite.decrypt(encryptedpwd))
         plain_text_encryptedpassword = bytes(uncipher_text).decode("utf-8") #convert to string
-        return plain_text_encryptedpassword
+        x = json.loads(plain_text_encryptedpassword, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+        return x
     except Exception as e:
         print(str(e))
         return "Error"   
@@ -227,10 +230,12 @@ def unencrypt():
 #Setup the database connection
 def database_conn():
     try:
-        user_id = 'marcelo'
-        user_password = unencrypt()
-        dbname = 'musicmood'
-        conn = pymysql.connect("musicmood-instance.ctjjankvidir.us-east-1.rds.amazonaws.com",user_id,user_password,dbname)
+        credentials = unencrypt()
+        user_id = credentials.user
+        user_password = credentials.password
+        dbname = credentials.dbname
+        server = credentials.server
+        conn = pymysql.connect(server,user_id,user_password,dbname)
         return conn
     except Exception as e:
         print("Exception occurred \n" +str(e))
