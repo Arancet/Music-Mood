@@ -259,7 +259,7 @@ def choosepath(row):
     #param row contains: rowid, trackid, song, artist, year  in that order
     #1 azlyrics, 2 metro lyrics, 3 song lyrics, 4 lyrics mode
     path = random.randint(1,4)
-    print("Path: "+str(path))
+    print(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime()) + " Path: "+str(path))
     lyric = "NA"
     if(path==1):
         lyric = get_song_lyrics_az(row[3],row[2])
