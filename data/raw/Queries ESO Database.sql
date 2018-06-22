@@ -1,9 +1,9 @@
 SELECT * FROM eso.songs_dataset;
 
-UPDATE eso.songs_dataset
-set lyrics = NULL, source = 0
-WHERE ID between 80 AND 100
-AND LYRICS = 'NA'
+#UPDATE eso.songs_dataset
+#set lyrics = NULL, source = 0
+#WHERE ID between 80 AND 100
+#AND LYRICS = 'NA'
 
 
 SELECT * from songs_dataset 
@@ -33,7 +33,20 @@ and LYRICS IS NULL
 SELECT DISTINCT ID,ARTIST, SONG
 FROM songs_dataset
  WHERE 
-id BETWEEN 501000 AND 510000
+id BETWEEN 386686 AND 515580
 and LYRICS = 'NA' 
+
+
+#UPDATE songs_dataset set lyrics = null where id = 496406
+
+
+
+
+
+
+
+
+
+
 
 

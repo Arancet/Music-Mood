@@ -40,7 +40,7 @@ def get_song_lyrics_az(artist, song_title):
     lyrics = "NA"
     try:
     	#AZLYRICS PROCESSING
-        soup = URL_Processing(azurl,True)
+        soup = URL_Processing(azurl,False)
         lyrics = str(soup)
         if(lyrics!="NA"):
             if(len(lyrics)==0 or lyrics == None):
