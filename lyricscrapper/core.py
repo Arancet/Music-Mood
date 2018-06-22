@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+# -*- encoding: utf-8 -*-
 import re
 import urllib.request
 from bs4 import BeautifulSoup
@@ -15,6 +14,9 @@ from collections import namedtuple
 #search for unprocessed songs within a range from Min to Max limits
 MIN_LIMIT = 386686
 MAX_LIMIT = 515580
+#MIN_LIMIT = 437261
+#MAX_LIMIT = 437261
+
 #It is defined to make a pause every 150 songs tried 
 PAUSE_THRESHOLD = 150
 #It is going to pause for ten seconds
@@ -34,7 +36,7 @@ def get_song_lyrics_az(artist, song_title):
         artist = artist[3:]
     #Making URLS    
     azurl = "http://azlyrics.com/lyrics/"+artist+"/"+song_title+".html"
-    #print(azurl)
+    print(azurl)
     lyrics = "NA"
     try:
     	#AZLYRICS PROCESSING
@@ -51,6 +53,7 @@ def get_song_lyrics_az(artist, song_title):
             lyrics = lyrics.replace('<br>','').replace('<br/>','').replace('</div>','').strip()
             lyrics = lyrics.replace('"','').replace("'","")
             lyrics = lyrics.encode('latin1').decode('utf8')
+            lyrics = replace_accent(lyrics)
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
@@ -72,7 +75,7 @@ def get_song_lyrics_metro(artist, song_title):
     #Making URLS    
     
     metrourl = "http://metrolyrics.com/"+song_title2+"-lyrics-"+artist2+".html"
-    #print(metrourl)
+    print(metrourl)
     lyrics = "NA"
     try:
 
@@ -101,6 +104,7 @@ def get_song_lyrics_metro(artist, song_title):
             lyrics = lyrics.replace('<p class="verse">','').replace('<br/>','').replace('</p>','').strip()
             lyrics = lyrics.replace('<div style="height:69px; background-color: transparent;"></div>','').strip()
             lyrics = lyrics.replace('"','').replace("'","")
+            lyrics = replace_accent(lyrics)
             lyrics = lyrics.encode('latin1').decode('utf8')
         return lyrics
     except Exception as e:
@@ -117,14 +121,15 @@ def get_song_lyrics_song(artist, song_title):
     song_title = song_title.lower()
     artist2 = replace_accent(artist2)
     song_title = replace_accent(song_title)
+    song_title2 = song_title.replace(' ', '-')
     #remove every special caracter except alphanumeric from artist and song title
     artist = re.sub('[^A-Za-z0-9]+', "", artist)
     song_title = re.sub('[^A-Za-z0-9]+', "", song_title)
     if artist2.startswith("the_"):    # remove starting 'the' from artist e.g. the who -> who
         artist2 = artist2[4:]
     #SONGLYRICS PROCESSING   
-    songurl = "http://songlyrics.com/"+artist2+"/"+song_title+"-lyrics/"
-    #print(songurl)
+    songurl = "http://songlyrics.com/"+artist2+"/"+song_title2+"-lyrics/"
+    print(songurl)
     lyrics = "NA"
     try:
         #SONGSLYRICS PROCESSING
@@ -138,6 +143,7 @@ def get_song_lyrics_song(artist, song_title):
             lyrics = lyrics.replace('<p class="songLyricsV14 iComment-text" id="songLyricsDiv">','').replace('<br/>','').replace('</p>','').strip()
             lyrics = lyrics.encode('latin1').decode('utf8')
             lyrics = lyrics.replace('"','').replace("'","")
+            lyrics = replace_accent(lyrics)
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
@@ -153,11 +159,9 @@ def get_song_lyrics_mode(artist, song_title):
     song_title = song_title.lower()
     artist3 = replace_accent(artist3)
     song_title = replace_accent(song_title)
-    if artist3.startswith("the_"):    # remove starting 'the' from artist e.g. the who -> who
-        artist3 = artist3[4:]
     #Making URLS    
     modeurl = "http://www.lyricsmode.com/lyrics/"+artist[:1]+"/"+artist3+"/"+song_title+".html"
-    #print(modeurl)
+    print(modeurl)
     lyrics = "NA"
     try:
         #LYRICSMODE PROCESSING
@@ -172,6 +176,7 @@ def get_song_lyrics_mode(artist, song_title):
             lyrics = lyrics.replace('<p class="ui-annotatable" id="lyrics_text">','').replace('<br/>','').replace('</p>','').strip()
             lyrics = lyrics.replace('"','').replace("'","")
             lyrics = lyrics.encode('latin1').decode('utf8')
+            lyrics = replace_accent(lyrics)
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
@@ -185,6 +190,8 @@ def replace_accent(name):
     name = name.replace('í','i').replace('ï','i').replace('ó','o').replace('ô','o')
     name = name.replace('ú','u').replace('ú','u').replace('ê','e').replace('ç','c')
     name = name.replace('ä','a')
+    name = name.encode('utf-8', 'ignore').decode('utf-8')
+    name = name.encode('ascii', 'ignore').decode('ascii')
     return name
 
 #Setup the connection with the headers, the current proxy (is changing via cron)
@@ -377,7 +384,7 @@ def main():
         #TEST
         #print(get_song_lyrics_az("Van Halen", "Jump"))
     except Exception as e:
-        return "Exception occurred \n" +str(e)
+        print("Exception occurred \n" +str(e))
     
 
 if __name__ == '__main__':
