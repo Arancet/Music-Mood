@@ -211,7 +211,7 @@ def URL_Processing(URL, useproxy):
             #print(headers)
             req = urllib.request.Request(URL,None,headers)
             #print(str(req.__class__))
-            content = urllib.request.urlopen(req).read()
+            content = urllib.request.urlopen(req, timeout=10).read()
             soup = BeautifulSoup(content, 'html.parser')
             return soup
         except Exception as e:
