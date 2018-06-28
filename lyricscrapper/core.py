@@ -334,6 +334,8 @@ def get_songs():
         c = db.cursor()
         sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics IS NULL order by year desc LIMIT 10'.\
         format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT)
+        #sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics like "We do not have%" order by year desc LIMIT 10'.\
+        #format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT)
         #print(sql)
         c.execute(sql)
         db.close()
