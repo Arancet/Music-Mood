@@ -332,10 +332,11 @@ def get_songs():
     try:
         db = database_conn()
         c = db.cursor()
-        sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics IS NULL order by year desc'.\
+        sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics IS NULL order by year desc LIMIT 10'.\
         format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT)
         #print(sql)
         c.execute(sql)
+        db.close()
         return c.fetchall()
     except Exception as e:
         print("[DB Exception]: " + str(e))    
@@ -370,21 +371,27 @@ def set_lyric(id, lyric, source):
 def main():
     try:
         cont = MIN_LIMIT;
+        k =0;
         print("Welcome!")
         rows = get_songs()
-        print("Tracks: " + str(len(rows)))
-        #Iterate through all the songs getting the lyrics
-        for row in rows:
-            print("["+str(row[0])+"]:"+row[2]+" by "+row[3])
-            #choosepath method returns a string of the form path|lyric
-            choosepath(row)
-            if(cont % PAUSE_THRESHOLD == 0):
-                print("Time to Rest...")
-                time.sleep(PAUSE_LENGHT)
-            cont = cont + 1
-            print(str(cont))
-        #TEST
-        #print(get_song_lyrics_az("Van Halen", "Jump"))
+        while (True):
+            if(k==10):
+                rows = get_songs()
+                k=0
+            print("Tracks: " + str(len(rows)))
+            #Iterate through all the songs getting the lyrics
+            for row in rows:
+                print("["+str(row[0])+"]:"+row[2]+" by "+row[3])
+                #choosepath method returns a string of the form path|lyric
+                choosepath(row)
+                if(cont % PAUSE_THRESHOLD == 0):
+                    print("Time to Rest...")
+                    time.sleep(PAUSE_LENGHT)
+                cont = cont + 1
+                print(str(cont))
+                k = k + 1
+            #TEST
+            #print(get_song_lyrics_az("Van Halen", "Jump"))
     except Exception as e:
         print("Exception occurred \n" +str(e))
     
