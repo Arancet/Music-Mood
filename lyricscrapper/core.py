@@ -12,10 +12,10 @@ from collections import namedtuple
 
 #Every record in the file has and ID, the main query 
 #search for unprocessed songs within a range from Min to Max limits
-MIN_LIMIT = 386686
+#MIN_LIMIT = 386686
+#MAX_LIMIT = 515580
+MIN_LIMIT = 1
 MAX_LIMIT = 515580
-#MIN_LIMIT = 437261
-#MAX_LIMIT = 437261
 
 #It is defined to make a pause every 150 songs tried 
 PAUSE_THRESHOLD = 150
@@ -140,6 +140,8 @@ def get_song_lyrics_song(artist, song_title):
             if(len(letra)==0 or letra == None):
                 return "NA"
             lyrics= str(letra[0])
+            if(lyrics.find("We do not have the lyrics for")!= -1):
+                return  "NA"
             lyrics = lyrics.replace('<p class="songLyricsV14 iComment-text" id="songLyricsDiv">','').replace('<br/>','').replace('</p>','').strip()
             lyrics = lyrics.encode('latin1').decode('utf8')
             lyrics = lyrics.replace('"','').replace("'","")
