@@ -9,6 +9,7 @@ import random
 import time
 import json
 from collections import namedtuple
+#from selenium import webdriver
 
 #Every record in the file has and ID, the main query 
 #search for unprocessed songs within a range from Min to Max limits
@@ -20,7 +21,7 @@ MAX_LIMIT = 515580
 #It is defined to make a pause every 150 songs tried 
 PAUSE_THRESHOLD = 150
 #It is going to pause for ten seconds
-PAUSE_LENGHT = 10
+PAUSE_LENGHT = 20
 
 #Allow to scrape the lyrics from azlyrics.com [My IP is blocked from this one :(]
 def get_song_lyrics_az(artist, song_title):
@@ -142,6 +143,8 @@ def get_song_lyrics_song(artist, song_title):
             lyrics= str(letra[0])
             if(lyrics.find("We do not have the lyrics for")!= -1):
                 return  "NA"
+            if(lyrics.find("<div style=height:250px; background-color: transparent;></div>")!= -1):
+                return  "NA"    
             lyrics = lyrics.replace('<p class="songLyricsV14 iComment-text" id="songLyricsDiv">','').replace('<br/>','').replace('</p>','').strip()
             lyrics = lyrics.encode('latin1').decode('utf8')
             lyrics = lyrics.replace('"','').replace("'","")
@@ -185,6 +188,43 @@ def get_song_lyrics_mode(artist, song_title):
         return "NA"
         #TODO: store error in database for lesson learned, return NA
         #return "Exception occurred \n" +str(e)
+
+#Allow to scrape the lyrics from lyric.wikia.com using firefox and geckodriver to call a browser and obtain lyrics from there
+def get_song_lyrics_wikia(artist, song_title):
+    """Made artist and song title lower"""
+    artist =  artist.lower()
+    artist3 = artist.replace(' ','_')
+    song_title = song_title.lower()
+    artist3 = replace_accent(artist3)
+    song_title = replace_accent(song_title)
+    song_title = song_title.replace(' ','_')
+    #Making URLS    
+    wikiaurl = "http://lyrics.wikia.com/wiki/"+artist3+":"+song_title
+    print(wikiaurl)
+    lyrics = "NA"
+    try:
+        #WIKIA PROCESSING
+        driver = webdriver.Firefox()
+        driver.get(wikiaurl)
+        html = driver.page_source
+        soup = BeautifulSoup(html, "lxml")
+        #soup = URL_Processing(wikiaurl,True)
+        lyrics = str(soup)
+        if(lyrics!="NA"):
+            if(len(lyrics)==0 or lyrics == None):
+                return "NA"
+            # lyrics lies within the div tag with class = lyricbox
+            letra = soup.find_all("div", {"class":"lyricbox"}) 
+            lyrics= str(letra[0])
+            lyrics = lyrics.replace('<br/>',' ').replace('</p>',' ').strip()
+            lyrics = lyrics.replace('"','').replace("'","")
+            lyrics = lyrics.encode('latin1').decode('utf8')
+            lyrics = replace_accent(lyrics)
+            lyrics = lyrics.replace('<div class=lyricbox>',' ').replace('<div class=lyricsbreak>',' ').replace('</div>',' ')
+        return lyrics
+    except Exception as e:
+        print("[Exception]: " + str(e))
+        return "NA"
 
 #Allow to replace special characters in vowels
 def replace_accent(name):
@@ -374,7 +414,7 @@ def main():
     try:
         cont = MIN_LIMIT;
         k =0;
-        print("Welcome!")
+        print("Welcome to the Version 1.0.1!")
         rows = get_songs()
         while (True):
             if(k==10):
@@ -386,9 +426,11 @@ def main():
                 print("["+str(row[0])+"]:"+row[2]+" by "+row[3])
                 #choosepath method returns a string of the form path|lyric
                 choosepath(row)
+                #lyric = get_song_lyrics_wikia(row[3],row[2])
+                #set_lyric(int(row[0]),lyric,5)
                 if(cont % PAUSE_THRESHOLD == 0):
                     print("Time to Rest...")
-                    time.sleep(PAUSE_LENGHT)
+                    time.sleep(random.randint(5,PAUSE_LENGHT))
                 cont = cont + 1
                 print(str(cont))
                 k = k + 1
