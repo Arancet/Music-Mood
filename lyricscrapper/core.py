@@ -58,6 +58,8 @@ def get_song_lyrics_az(artist, song_title):
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
+        if(str(e).find("codec") != -1):
+            return "Codec Error"
         return "NA"
         #TODO: store error in database for lesson learned, return NA
         #return "Exception occurred \n" +str(e)
@@ -83,11 +85,10 @@ def get_song_lyrics_metro(artist, song_title):
         #METROLYRICS PROCESSING
         soup = URL_Processing(metrourl,True)
         lyrics = str(soup)
+        
         if(lyrics!="NA"):
             if(len(lyrics)==0 or lyrics == None):
-                return "NA"
-            if(lyrics.find("<div style=height:250px; background-color: transparent;></div>")!= -1):
-                return  "NA" 
+                return "NA"     
             # lyrics lies divided in three sections 
             first_section = '<!-- First Section -->'
             widget_related = '<!--WIDGET - RELATED-->'
@@ -109,9 +110,14 @@ def get_song_lyrics_metro(artist, song_title):
             lyrics = lyrics.replace('"','').replace("'","")
             lyrics = replace_accent(lyrics)
             lyrics = lyrics.encode('latin1').decode('utf8')
+            if(lyrics.find('<div style=height:250px; background-color: transparent;></div>')!= -1):
+                print(lyrics)
+                return  "NA"
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
+        if(str(e).find("codec") != -1):
+            return "Codec Error"
         return "NA"
         #TODO: store error in database for lesson learned, return NA
         #return "Exception occurred \n" +str(e)
@@ -152,6 +158,8 @@ def get_song_lyrics_song(artist, song_title):
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
+        if(str(e).find("codec") != -1):
+            return "Codec Error"
         return "NA"
         #TODO: store error in database for lesson learned, return NA
         #return "Exception occurred \n" +str(e)    
@@ -185,6 +193,8 @@ def get_song_lyrics_mode(artist, song_title):
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
+        if(str(e).find("codec") != -1):
+            return "Codec Error"
         return "NA"
         #TODO: store error in database for lesson learned, return NA
         #return "Exception occurred \n" +str(e)
@@ -224,6 +234,8 @@ def get_song_lyrics_wikia(artist, song_title):
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
+        if(str(e).find("codec") != -1):
+            return "Codec Error"
         return "NA"
 
 #Allow to replace special characters in vowels
@@ -374,6 +386,7 @@ def get_songs():
         c = db.cursor()
         sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics IS NULL order by year desc LIMIT 10'.\
         format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT)
+        #sql = 'SELECT id, trackid, song, artist, year from songs_dataset where  lyrics = "div_metro" order by year desc LIMIT 10'
         #sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics like "We do not have%" order by year desc LIMIT 10'.\
         #format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT)
         #print(sql)
@@ -413,13 +426,13 @@ def set_lyric(id, lyric, source):
 def main():
     try:
         cont = MIN_LIMIT;
-        k =0;
+        k = 0;
         print("Welcome to the Version 1.0.1!")
         rows = get_songs()
         while (True):
-            if(k==10):
+            if(k == 10):
+                k = 0
                 rows = get_songs()
-                k=0
             print("Tracks: " + str(len(rows)))
             #Iterate through all the songs getting the lyrics
             for row in rows:
