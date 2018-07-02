@@ -86,6 +86,8 @@ def get_song_lyrics_metro(artist, song_title):
         if(lyrics!="NA"):
             if(len(lyrics)==0 or lyrics == None):
                 return "NA"
+            if(lyrics.find("<div style=height:250px; background-color: transparent;></div>")!= -1):
+                return  "NA" 
             # lyrics lies divided in three sections 
             first_section = '<!-- First Section -->'
             widget_related = '<!--WIDGET - RELATED-->'
@@ -142,9 +144,7 @@ def get_song_lyrics_song(artist, song_title):
                 return "NA"
             lyrics= str(letra[0])
             if(lyrics.find("We do not have the lyrics for")!= -1):
-                return  "NA"
-            if(lyrics.find("<div style=height:250px; background-color: transparent;></div>")!= -1):
-                return  "NA"    
+                return  "NA"   
             lyrics = lyrics.replace('<p class="songLyricsV14 iComment-text" id="songLyricsDiv">','').replace('<br/>','').replace('</p>','').strip()
             lyrics = lyrics.encode('latin1').decode('utf8')
             lyrics = lyrics.replace('"','').replace("'","")
