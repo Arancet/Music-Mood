@@ -13,10 +13,10 @@ from collections import namedtuple
 
 #Every record in the file has and ID, the main query 
 #search for unprocessed songs within a range from Min to Max limits
-#MIN_LIMIT = 386686
+MIN_LIMIT = 386686
+MAX_LIMIT = 451132
+#MIN_LIMIT = 451133
 #MAX_LIMIT = 515580
-MIN_LIMIT = 1
-MAX_LIMIT = 515580
 
 #It is defined to make a pause every 150 songs tried 
 PAUSE_THRESHOLD = 150
@@ -53,7 +53,6 @@ def get_song_lyrics_az(artist, song_title):
             lyrics = lyrics.split(down_partition)[0]
             lyrics = lyrics.replace('<br>','').replace('<br/>','').replace('</div>','').strip()
             lyrics = lyrics.replace('"','').replace("'","")
-            lyrics = lyrics.encode('latin1').decode('utf8')
             lyrics = replace_accent(lyrics)
         return lyrics
     except Exception as e:
@@ -113,6 +112,7 @@ def get_song_lyrics_metro(artist, song_title):
             if(lyrics.find('<div style=height:250px; background-color: transparent;></div>')!= -1):
                 print(lyrics)
                 return  "NA"
+            lyrics = replace_accent(lyrics)
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
@@ -228,9 +228,8 @@ def get_song_lyrics_wikia(artist, song_title):
             lyrics= str(letra[0])
             lyrics = lyrics.replace('<br/>',' ').replace('</p>',' ').strip()
             lyrics = lyrics.replace('"','').replace("'","")
-            lyrics = lyrics.encode('latin1').decode('utf8')
-            lyrics = replace_accent(lyrics)
             lyrics = lyrics.replace('<div class=lyricbox>',' ').replace('<div class=lyricsbreak>',' ').replace('</div>',' ')
+            lyrics = replace_accent(lyrics)
         return lyrics
     except Exception as e:
         print("[Exception]: " + str(e))
@@ -243,9 +242,10 @@ def replace_accent(name):
     name = name.replace('å','a').replace('á','a').replace('é','e').replace('ë','e')
     name = name.replace('í','i').replace('ï','i').replace('ó','o').replace('ô','o')
     name = name.replace('ú','u').replace('ú','u').replace('ê','e').replace('ç','c')
-    name = name.replace('ä','a')
+    name = name.replace('ä','a').replace('(','').replace(')','').replace('!','')
     name = name.encode('utf-8', 'ignore').decode('utf-8')
-    name = name.encode('ascii', 'ignore').decode('ascii')
+    name = name.encode('ascii', 'ignore').decode('utf-8')
+    name = name.encode('latin1','ignore').decode('utf-8')
     return name
 
 #Setup the connection with the headers, the current proxy (is changing via cron)
@@ -384,9 +384,9 @@ def get_songs():
     try:
         db = database_conn()
         c = db.cursor()
-        sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics IS NULL order by year desc LIMIT 10'.\
-        format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT)
-        #sql = 'SELECT id, trackid, song, artist, year from songs_dataset where  lyrics = "div_metro" order by year desc LIMIT 10'
+        #sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics IS NULL order by year desc LIMIT 10'.\
+        #format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT)
+        sql = 'SELECT id, trackid, song, artist, year from songs_dataset where  lyrics = "div_metro" order by year desc LIMIT 10'
         #sql = 'SELECT id, trackid, song, artist, year from songs_dataset where id between {min_limit} and {max_limit} and lyrics like "We do not have%" order by year desc LIMIT 10'.\
         #format(min_limit=MIN_LIMIT, max_limit=MAX_LIMIT)
         #print(sql)
@@ -427,7 +427,7 @@ def main():
     try:
         cont = MIN_LIMIT;
         k = 0;
-        print("Welcome to the Version 1.0.1!")
+        print("Welcome to the Version 1.0.2!")
         rows = get_songs()
         while (True):
             if(k == 10):
