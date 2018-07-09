@@ -1,5 +1,5 @@
-LOAD DATA INFILE "/georgetown/ds/data/songs_dataset.csv"
-INTO TABLE songs_dataset
+LOAD DATA INFILE "/georgetown/ds/data/artist_song_billboard.csv"
+INTO TABLE artist_song_billboard
 COLUMNS TERMINATED BY ','
 OPTIONALLY ENCLOSED BY '"'
 ESCAPED BY '"'
