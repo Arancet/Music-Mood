@@ -9,22 +9,6 @@ from pprint import pprint
 from sqlalchemy import create_engine 
 
 
-#Uncode the secret license file
-def unencrypt():
-    try:
-        key = b'IXx5rHfP15FqP4ahx2pwcud-XmcBzU553Ri6p-nVhnc=' #Fernet.generate_key()
-        cipher_suite = Fernet(key)
-        with open('/usr/local/etc/musicmood_bytes.bin', 'rb') as file_object:
-            for line in file_object:
-                encryptedpwd = line
-        uncipher_text = (cipher_suite.decrypt(encryptedpwd))
-        plain_text_encryptedpassword = bytes(uncipher_text).decode("utf-8") #convert to string
-        x = json.loads(plain_text_encryptedpassword, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
-        return x
-    except Exception as e:
-        print(str(e))
-        return "Error"  
-
 #Setup the database connection
 def database_conn():
     try:
@@ -94,6 +78,32 @@ def fuzzy_match_attempt_two():
     except Exception as e:
         print("Exception occurred \n" +str(e))
 
+#Fuzzy Match Attempt
+def fuzzy_match_songs_dataset():
+    try:
+        conn = database_conn()
+        year = 1922
+        while(year < 2019):
+            df1 = pd.read_sql('SELECT artist_kaggle, song_kaggle, year FROM songs_dataset WHERE id_lyrics_kaggle IS NULL and year = {year} ORDER BY artist_kaggle'.format(year=year), con = conn)
+            df2 = pd.read_sql('SELECT artist, song, year FROM lyrics_kaggle WHERE year = {year} ORDER BY artist'.format(year=year), con = conn)
+            # Columns to match on from df_left
+            left_on = ["artist_kaggle","song_kaggle","year"]
+            # Columns to match on from df_right
+            right_on = ["artist","song","year"]
+            #df3 = fuzzymatcher.fuzzy_left_join(df1,df2,left_on,right_on)
+            start_time = time.time()
+            try:
+                df = fuzzymatcher.link_table(df1, df2, left_on, right_on)
+                print("--- %s seconds ---" % (time.time() - start_time))
+                mtch = df.loc[df['match_rank'] == 1]
+                mtch.to_sql(con = sqlalchemy_engine(), name='fuzzy_match_songs_dataset', if_exists='append')
+                print("Year: {yr} - DB [OK]".format(yr=year))
+            except Exception as e:
+                print("Problem with year [{yr}] - [{e}]".format(yr=year,e=str(e)))    
+            year = year + 1
+    except Exception as e:
+        print("Exception occurred \n" +str(e))
+
 #Update IdLyrics Match Found
 def match_found(id_lyrics,id):
     try:
@@ -107,6 +117,22 @@ def match_found(id_lyrics,id):
         conn.close()
     except Exception as e:
         print("[Match Found] Exception occurred :" + str(e))
+
+#Uncode the secret license file
+def unencrypt():
+    try:
+        key = b'IXx5rHfP15FqP4ahx2pwcud-XmcBzU553Ri6p-nVhnc=' #Fernet.generate_key()
+        cipher_suite = Fernet(key)
+        with open('/usr/local/etc/musicmood_bytes.bin', 'rb') as file_object:
+            for line in file_object:
+                encryptedpwd = line
+        uncipher_text = (cipher_suite.decrypt(encryptedpwd))
+        plain_text_encryptedpassword = bytes(uncipher_text).decode("utf-8") #convert to string
+        x = json.loads(plain_text_encryptedpassword, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+        return x
+    except Exception as e:
+        print(str(e))
+        return "Error"  
 
 #Approximate Song Algorithm: Artist -> Song
 def approximate_song_match():
@@ -185,9 +211,10 @@ def approximate_song_match_no_year():
 def main():
     try:
         print("Version 0.0.3 \n Welcome!")
-        #fuzzy_match_attempt_two()
-        #approximate_song_match()
-        approximate_song_match_no_year();
+        #fuzzy_match_attempt_two();
+        #approximate_song_match();
+        #approximate_song_match_no_year();
+        fuzzy_match_songs_dataset();
     except Exception as e:
         print("Exception occurred: " +str(e))   
 
