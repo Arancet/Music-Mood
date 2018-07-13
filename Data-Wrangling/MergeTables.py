@@ -104,6 +104,36 @@ def fuzzy_match_songs_dataset():
     except Exception as e:
         print("Exception occurred \n" +str(e))
 
+
+#Fuzzy Match Attempt
+def fuzzy_match_song_artist_universe():
+    try:
+        conn = database_conn()
+        year = 1957
+        while(year < 2019):
+            #left - songs_dataset
+            df1 = pd.read_sql('SELECT artist, song, year FROM songs_dataset WHERE year = {year} ORDER BY artist'.format(year=year), con = conn)
+            #right - song_artist_universe
+            df2 = pd.read_sql('SELECT artist, song, year_kaggle FROM song_artist_universe WHERE trackid IS NULL AND year_kaggle = {year} ORDER BY artist'.format(year=year), con = conn)
+            # Columns to match on from df_left
+            left_on = ["artist","song","year"]
+            # Columns to match on from df_right
+            right_on = ["artist","song","year_kaggle"]
+            #df3 = fuzzymatcher.fuzzy_left_join(df1,df2,left_on,right_on)
+            start_time = time.time()
+            try:
+                df = fuzzymatcher.link_table(df1, df2, left_on, right_on)
+                print("--- %s seconds ---" % (time.time() - start_time))
+                mtch = df.loc[(df['match_rank'] == 1) & (df['match_score'] >= 0.50)]
+                mtch.to_sql(con = sqlalchemy_engine(), name='fuzzy_match_song_artist_universe', if_exists='append')
+                print("Year: {yr} - DB [OK]".format(yr=year))
+            except Exception as e:
+                print("Problem with year [{yr}] - [{e}]".format(yr=year,e=str(e)))    
+            year = year + 1
+    except Exception as e:
+        print("Exception occurred \n" +str(e))
+
+
 #Update IdLyrics Match Found
 def match_found(id_lyrics,id):
     try:
@@ -214,7 +244,9 @@ def main():
         #fuzzy_match_attempt_two();
         #approximate_song_match();
         #approximate_song_match_no_year();
-        fuzzy_match_songs_dataset();
+        #fuzzy_match_songs_dataset();
+        fuzzy_match_song_artist_universe();
+        
     except Exception as e:
         print("Exception occurred: " +str(e))   
 
