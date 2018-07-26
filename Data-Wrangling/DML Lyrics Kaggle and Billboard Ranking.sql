@@ -224,7 +224,7 @@ END TIPO
 FROM song_artist_universe
 ) M
 GROUP BY TIPO;
-#6983 MATCHES
+#7772 MATCHES
 
 
 
@@ -237,6 +237,7 @@ count(*) * (100-avg(ranking)) popularity
 FROM  billboard_ranking
 GROUP BY YEAR(semana), artist,song  
 ORDER BY 2,3,5 desc;
+
 #NUMBER OF WEEKS
 ALTER TABLE `song_artist_universe` ADD `num_weeks` INT  NULL;
 
@@ -256,10 +257,180 @@ UPDATE song_artist_universe A,
 FROM billboard_ranking
 GROUP BY song,artist) W
 SET A.bill_popularity = W.popularity
-WHERE A.song = W.song AND A.artist = W.artist
+WHERE A.song = W.song AND A.artist = W.artist;
+
+#COMPLETE MDS
+SELECT count(*) FROM musicmood.songs_metadata WHERE year = '';
+
+INSERT INTO `musicmood`.`songs_dataset`
+(`trackid`,
+`song`,
+`artist`)
+SELECT track_id, title, artist_name FROM musicmood.songs_metadata WHERE year = '';
+
+SELECT  DISTINCT A.TRACKID, A.artist, A.song   FROM 
+songs_dataset A JOIN song_artist_universe B ON A.artist = B.artist AND A.song = B.song
+where B.trackid IS NULL;
+
+#739 more matches
+UPDATE song_artist_universe B,songs_dataset A 
+SET B.trackid = A.trackid
+WHERE A.artist = B.artist AND A.song = B.song AND B.trackid IS NULL;
+
+select * from all_songs_boxes;
+
+#OBTAINING YEAR FROM SONGS_PER_YEAR
+SELECT count(*) FROM 
+songs_dataset A JOIN songs_per_year B ON A.song = B.name_song
+where A.year is null;
+
+UPDATE songs_dataset A , songs_per_year B
+SET  A.year = B.date_year
+WHERE A.song = B.name_song
+AND A.year is null;
 
 
+SELECT COUNT(*) FROM  fuzzy_match_song_artist_universe2 WHERE MATCH_RANK = 1;
+
+#UPDATE TRACKID FROM FUZZY MATCHES
+SELECT DISTINCT A.trackid, 
+U.id #, F.* 
+FROM songs_dataset A,
+song_artist_universe U,
+fuzzy_match_song_artist_universe2 F
+WHERE U.trackid IS NULL
+AND F.match_rank = 1
+AND F.artist_left = A.artist 
+AND F.artist_right = U.artist
+AND F.song_left = A.song
+AND F.song_right = U.song;
 
 
+UPDATE song_artist_universe U,
+songs_dataset A,
+fuzzy_match_song_artist_universe2 F
+SET U.trackid = A.trackid
+WHERE U.trackid IS NULL
+AND F.match_rank = 1
+AND F.artist_left = A.artist 
+AND F.artist_right = U.artist
+AND F.song_left = A.song
+AND F.song_right = U.song;
+
+#QUERY DE DISTRIBUCION DE MATCH MDS
+SELECT TIPO, COUNT(*) FROM
+(
+SELECT CASE
+	WHEN  trackid IS NULL THEN 'PENDING'
+    ELSE 'MATCH'
+	END TIPO FROM song_artist_universe
+) A
+GROUP BY TIPO;
+
+#Matches Genre Popularity
+select count(*) from  song_artist_universe B,genre_popularity_time A
+where  concat(B.artist,B.song) = A.unique_id; 
+
+select distinct B.artist, B.song, A.unique_id
+from  song_artist_universe B,genre_popularity_time A
+where  concat(B.artist,B.song) = A.unique_id; 
+
+#Matches Genre Popularity
+select count(*) from  songs_dataset B,genre_popularity_time A
+where  concat(B.artist,B.song) = A.unique_id ;
+
+select B.trackid, B.artist, B.song, A.unique_id 
+from  songs_dataset B,genre_popularity_time A
+where  concat(B.artist,B.song) = A.unique_id ;
+
+update  genre_popularity_time A,songs_dataset B
+set A.trackid = B.trackid
+where  concat(B.artist,B.song) = A.unique_id ;
 
 
+select * from genre_popularity_time;
+
+#MATCHES ALL SONGS BOXES
+select count(*) from all_songs_boxes where trackid is not null;
+
+update  all_songs_boxes A,songs_dataset B
+set A.trackid = B.trackid
+where  concat(B.artist,B.song) = A.unique_id ;
+
+#THE MEG
+#CREATE OR REPLACE VIEW songs_instance AS
+SELECT  A.trackid,  A.bill_popularity,
+F.song, F.artist, F.weeks_ranked, F.highest_rank,
+F.lowest_rank, F.weeks_top_spot, F.weeks_top_10,
+F.weeks_top_20, F.weeks_top_30, F.weeks_top_40,
+F.weeks_top_50, F.average_rank, F.first_appearance,
+F.year_first_appear, F.last_appearance, F.year_last_appear, F.decade,
+B.danceability, B.duration, B.end_of_fade_in, B.energy,
+B.key_confidence, B.key_song, B.loudness, B.mode,
+B.mode_confidence, B.start_of_fade_out, B.tempo,
+B.time_signature, B.time_signature_confidence, 
+C.GrossDomesticProduct, C.PersonalIncome, C.Unemployment_Rate_Year_AVG, C.Adjusted_CPI_Year_AVG,
+C.Misery_Index_Year_AVG, D.genre,
+E.Blues, E.Cumulative_Weeks, E.Unique_Song_Count, E.Unique_Artist_Count, E.Chart_Count as_chart_count, E.Total_Songs, 
+E.Find_Duplicate_Titles, E.First_Year_on_Chart, E.Years_on_Chart, 
+E.Points, E.Random, E.ChildrensMusic, E.Christian_Gospel, E.Christmas, 
+E.Classical, E.Comedy, E.Country_, E.Folk, E.House_Electronic_Trance, 
+E.Jazz, E.Last_Position, E.Latin, E.Latitude, E.Longitude, E.Metal, E.Neighborhood, 
+E.Number_of_Records, E.Peak_Position, E.Pop_Standards, E.Pop, E.Punk, E.R_And_B, E.Rank as_rank, 
+E.Rap_Hip_Hop, E.Rock_And_Roll, E.Rock, E.Ska_Reggae_Dancehall, E.Soul, E.Soundtrack, 
+E.Spoken_Word, E.Weeks_on_Chart, E.Primary_Genre as_primary_genre,
+G.number_1s, G.weeks_at_number_1,
+H.chart_appearances, H.artist_weeks_at_number_1,
+I.tempo, I.speed_general,
+A.num_weeks
+FROM song_artist_universe A 
+LEFT OUTER JOIN songs_ranking_features F ON A.trackid = F.trackid
+LEFT OUTER JOIN songs_new_features B ON A.trackid = B.track_id
+LEFT OUTER JOIN US_Economic_Indicators_1948_2018 C ON A.year_kaggle = C.Year
+LEFT OUTER JOIN  songs_genre D ON A.trackid = D.trackid
+LEFT OUTER JOIN  songs_boxes E ON A.trackid = E.trackid
+LEFT OUTER JOIN  artist_number_1s G ON A.artist = G.artist
+LEFT OUTER JOIN  chart_appearances H ON A.artist = H.artist
+LEFT OUTER JOIN  speed I ON A.trackid = I.track_id
+WHERE A.trackid IS NOT NULL;
+
+
+SELECT D.trackid, COUNT(*)
+FROM genre_popularity_time D
+WHERE trackid IS NOT NULL
+GROUP BY D.trackid
+HAVING COUNT(*) > 1;
+
+SELECT * FROM genre_popularity_time 
+WHERE trackid = 'TRAJBSL128F428A021';
+
+
+SELECT E.trackid, COUNT(*)
+FROM all_songs_boxes E
+WHERE trackid IS NOT NULL
+GROUP BY E.trackid
+HAVING COUNT(*) > 1;
+
+SELECT * FROM all_songs_boxes 
+WHERE trackid = 'TRAJBSL128F428A021';
+
+
+#OBTAIN TRACK ID 
+
+SELECT A.trackid FROM 
+song_artist_universe A join songs_ranking_features B
+ON A.artist = B.artist AND A.song = B.song 
+where A.trackid is not null;
+
+UPDATE songs_ranking_features B, song_artist_universe A 
+SET B.trackid = A.trackid
+WHERE A.artist = B.artist AND A.song = B.song 
+AND A.trackid is not null;
+
+
+#populate songs_genre
+INSERT INTO songs_genre (trackid, genre)
+SELECT trackid, MAX(primary_genre) 
+FROM genre_popularity_time
+WHERE trackid IS NOT NULL
+group by trackid

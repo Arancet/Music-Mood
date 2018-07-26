@@ -124,14 +124,43 @@ def fuzzy_match_song_artist_universe():
             try:
                 df = fuzzymatcher.link_table(df1, df2, left_on, right_on)
                 print("--- %s seconds ---" % (time.time() - start_time))
-                mtch = df.loc[(df['match_rank'] == 1) & (df['match_score'] >= 0.50)]
-                mtch.to_sql(con = sqlalchemy_engine(), name='fuzzy_match_song_artist_universe', if_exists='append')
+                mtch = df.loc[(df['match_rank'] == 1) & (df['match_score'] >= 0.90)]
+                mtch.to_sql(con = sqlalchemy_engine(), name='fuzzy_match_song_artist_universe2', if_exists='append')
                 print("Year: {yr} - DB [OK]".format(yr=year))
             except Exception as e:
                 print("Problem with year [{yr}] - [{e}]".format(yr=year,e=str(e)))    
             year = year + 1
     except Exception as e:
         print("Exception occurred \n" +str(e))
+
+#Fuzzy Match Attempt
+def fuzzy_match_song_artist_universe2():
+	try:
+		conn = database_conn()
+		year = 1957
+		while(year < 2019):
+			print(year)
+			#left - songs_dataset
+			df1 = pd.read_sql('SELECT artist, song, year FROM songs_dataset WHERE year = {year} ORDER BY artist'.format(year=year), con = conn)
+        	#right - song_artist_universe
+			df2 = pd.read_sql('SELECT artist, song, year_kaggle FROM song_artist_universe WHERE year_kaggle = {year} and trackid IS NULL ORDER BY artist'.format(year=year), con = conn)
+			# Columns to match on from df_left
+			left_on = ["artist","song", "year"]
+			# Columns to match on from df_right
+			right_on = ["artist","song","year_kaggle"]
+			#df3 = fuzzymatcher.fuzzy_left_join(df1,df2,left_on,right_on)
+			start_time = time.time()
+			try:
+				df = fuzzymatcher.link_table(df1, df2, left_on, right_on)
+				print("--- %s seconds ---" % (time.time() - start_time))
+				mtch = df.loc[(df['match_rank'] <= 2) & (df['match_score'] >= 0.40)]
+				mtch.to_sql(con = sqlalchemy_engine(), name='fuzzy_match_song_artist_universe2', if_exists='append')
+				print("Year: {yr} - DB [OK]".format(yr=year))
+			except Exception as e:
+				print("Problem with year [{yr}] - [{e}]".format(yr=year,e=str(e)))    
+			year = year + 1
+	except Exception as e:
+		print("Exception occurred \n" +str(e))
 
 
 #Update IdLyrics Match Found
@@ -240,12 +269,12 @@ def approximate_song_match_no_year():
 #Main Function
 def main():
     try:
-        print("Version 0.0.3 \n Welcome!")
+        print("Version 0.0.4 \n Welcome!")
         #fuzzy_match_attempt_two();
         #approximate_song_match();
         #approximate_song_match_no_year();
         #fuzzy_match_songs_dataset();
-        fuzzy_match_song_artist_universe();
+        fuzzy_match_song_artist_universe2();
         
     except Exception as e:
         print("Exception occurred: " +str(e))   
