@@ -358,7 +358,7 @@ set A.trackid = B.trackid
 where  concat(B.artist,B.song) = A.unique_id ;
 
 #THE MEG
-#CREATE OR REPLACE VIEW songs_instance AS
+INSERT INTO  songs_instance 
 SELECT  A.trackid,  A.bill_popularity,
 F.song, F.artist, F.weeks_ranked, F.highest_rank,
 F.lowest_rank, F.weeks_top_spot, F.weeks_top_10,
@@ -393,6 +393,8 @@ LEFT OUTER JOIN  artist_number_1s G ON A.artist = G.artist
 LEFT OUTER JOIN  chart_appearances H ON A.artist = H.artist
 LEFT OUTER JOIN  speed I ON A.trackid = I.track_id
 WHERE A.trackid IS NOT NULL;
+
+
 
 
 SELECT D.trackid, COUNT(*)
@@ -433,4 +435,49 @@ INSERT INTO songs_genre (trackid, genre)
 SELECT trackid, MAX(primary_genre) 
 FROM genre_popularity_time
 WHERE trackid IS NOT NULL
-group by trackid
+group by trackid;
+
+
+
+
+
+SELECT trackid from songs_instance 
+where genre is null and artist in 
+(select distinct artist from songs_instance 
+where genre is not null);
+
+select I. artist, I.song, I.genre, I.as_primary_genre, I.trackid from songs_instance I
+where I.genre is null and I.as_primary_genre is not null;
+
+update songs_instance 
+set genre = 'Soul'
+where trackid = 'TRLRPRK128F92DF7EB';
+
+UPDATE songs_instance I, (select distinct artist, genre from songs_instance 
+where genre is not null) J
+set I.genre = J.genre
+where I.artist = J.artist
+and I.genre is null;
+
+
+select * from songs_instance I, lyrics_kaggle J
+where I.artist = J.artist
+and I.genre	 is null
+and J.genre is not null;
+
+
+UPDATE songs_instance I, (select distinct artist, genre from lyrics_kaggle 
+where genre is not null) J
+set I.genre = J.genre
+where I.artist = J.artist
+and I.genre is null;
+
+delete from songs_instance where duration is null;
+
+SELECT genre, count(*)  from songs_instance
+group by genre;
+
+update songs_instance 
+set genre = 'Rock and Roll'
+where genre = 'Rock_And_Roll';
+
