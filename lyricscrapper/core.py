@@ -12,8 +12,8 @@ from collections import namedtuple
 
 #Every record in the file has and ID, the main query 
 #search for unprocessed songs within a range from Min to Max limits
-MIN_LIMIT = 386686
-MAX_LIMIT = 515580
+MIN_LIMIT = 1
+MAX_LIMIT = 128895
 #MIN_LIMIT = 437261
 #MAX_LIMIT = 437261
 
