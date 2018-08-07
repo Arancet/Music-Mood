@@ -84,11 +84,11 @@ def fuzzy_match_songs_dataset():
         conn = database_conn()
         year = 1922
         while(year < 2019):
-            df1 = pd.read_sql('SELECT artist_kaggle, song_kaggle, year FROM songs_dataset WHERE id_lyrics_kaggle IS NULL and year = {year} ORDER BY artist_kaggle'.format(year=year), con = conn)
-            df2 = pd.read_sql('SELECT artist, song, year FROM lyrics_kaggle WHERE year = {year} ORDER BY artist'.format(year=year), con = conn)
-            # Columns to match on from df_left
-            left_on = ["artist_kaggle","song_kaggle","year"]
-            # Columns to match on from df_right
+            df1 = pd.read_sql('SELECT artist, song, year FROM songs_dataset WHERE year = {year} ORDER BY artist'.format(year=year), con = conn)
+            df2 = pd.read_sql('SELECT artist, song, year FROM lyrics_kaggle WHERE year = {year} AND  genre is not null AND genre <> "Not Available"  ORDER BY artist'.format(year=year), con = conn)
+            # Columns to match on from df_left DF1 SONGS_DATASET
+            left_on = ["artist","song","year"]
+            # Columns to match on from df_right DF2 LYRICS_KAGGLE
             right_on = ["artist","song","year"]
             #df3 = fuzzymatcher.fuzzy_left_join(df1,df2,left_on,right_on)
             start_time = time.time()
@@ -96,7 +96,7 @@ def fuzzy_match_songs_dataset():
                 df = fuzzymatcher.link_table(df1, df2, left_on, right_on)
                 print("--- %s seconds ---" % (time.time() - start_time))
                 mtch = df.loc[df['match_rank'] == 1]
-                mtch.to_sql(con = sqlalchemy_engine(), name='fuzzy_match_songs_dataset', if_exists='append')
+                mtch.to_sql(con = sqlalchemy_engine(), name='fuzzy_match_SD_LK', if_exists='append')
                 print("Year: {yr} - DB [OK]".format(yr=year))
             except Exception as e:
                 print("Problem with year [{yr}] - [{e}]".format(yr=year,e=str(e)))    
@@ -269,12 +269,12 @@ def approximate_song_match_no_year():
 #Main Function
 def main():
     try:
-        print("Version 0.0.4 \n Welcome!")
+        print("Version 0.0.5 \n Welcome!")
         #fuzzy_match_attempt_two();
         #approximate_song_match();
         #approximate_song_match_no_year();
         #fuzzy_match_songs_dataset();
-        fuzzy_match_song_artist_universe2();
+        fuzzy_match_songs_dataset();
         
     except Exception as e:
         print("Exception occurred: " +str(e))   

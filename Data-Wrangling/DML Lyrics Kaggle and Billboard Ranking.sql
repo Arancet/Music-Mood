@@ -1,4 +1,4 @@
-ALTER TABLE `song_artist_universe` ADD `artist_kaggle` VARCHAR(300)  NULL; 
+ exact ALTER TABLE `song_artist_universe` ADD `artist_kaggle` VARCHAR(300)  NULL; 
 ALTER TABLE `song_artist_universe` ADD `song_kaggle` VARCHAR(300)  NULL; 
 ALTER TABLE `song_artist_universe` ADD `year_kaggle` int  NULL; 
 ALTER TABLE `song_artist_universe` ADD `id_lyrics_kaggle` int  NULL; 
@@ -481,3 +481,96 @@ update songs_instance
 set genre = 'Rock and Roll'
 where genre = 'Rock_And_Roll';
 
+#ADD MORE FEATURES
+select count(*) from  songs_dataset;
+
+SELECT artist_kaggle, song_kaggle, year FROM songs_dataset WHERE year = 1922 ORDER BY artist_kaggle;
+
+select genre,count(*) from lyrics_kaggle 
+#where genre is not null and genre <> 'Not Available' 
+group by genre;
+#
+
+select * from fuzzy_match_SD_LK F
+where F.match_score > 0;
+
+
+select S.trackid,
+    0,
+    S.song,
+    S.artist,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    S.year,
+    N.duration,
+    0,
+    0,
+    N.key_song,
+    N.loudness,
+    N.mode,
+    0,
+    0,
+    N.tempo,
+    N.time_signature,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    K.genre,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+   NULL,
+    NULL,
+    NULL 
+    from songs_dataset S  
+    JOIN lyrics_kaggle K on S.artist = K.artist and S.song = K.song
+    JOIN songs_new_features N on S.trackid = N.track_id;
+
+   SELECT trackid
+    FROM songs_instance A
+   #  where A.trackid = 'TRROQUU128F42592CE'
+    group by A.trackid
+    having COUNT(*) >1;
+    
+    select count(*) from songs_instance
+    truncate table songs_instance
+    
+    
+   
