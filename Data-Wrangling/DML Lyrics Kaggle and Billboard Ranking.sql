@@ -482,7 +482,7 @@ set genre = 'Rock and Roll'
 where genre = 'Rock_And_Roll';
 
 #ADD MORE FEATURES
-select count(*) from  songs_dataset;
+select count(*) from  songs_instance;
 
 SELECT artist_kaggle, song_kaggle, year FROM songs_dataset WHERE year = 1922 ORDER BY artist_kaggle;
 
@@ -491,10 +491,10 @@ select genre,count(*) from lyrics_kaggle
 group by genre;
 #
 
-select * from fuzzy_match_SD_LK F
-where F.match_score > 0;
+select distinct artist_left, song_left, artist_right, song_right from fuzzy_match_SD_LK F
+where F.match_score > 0.28;
 
-
+INSERT INTO songs_instance
 select S.trackid,
     0,
     S.song,
@@ -558,10 +558,13 @@ select S.trackid,
     0,
    NULL,
     NULL,
-    NULL 
+    NULL,
+    'Added'
     from songs_dataset S  
     JOIN lyrics_kaggle K on S.artist = K.artist and S.song = K.song
-    JOIN songs_new_features N on S.trackid = N.track_id;
+    JOIN songs_new_features N on S.trackid = N.track_id
+    WHERE K.genre <> 'Not Available' and K.genre is not null
+    and S.trackid not in (SELECT trackid from songs_instance);
 
    SELECT trackid
     FROM songs_instance A
@@ -569,8 +572,81 @@ select S.trackid,
     group by A.trackid
     having COUNT(*) >1;
     
-    select count(*) from songs_instance
-    truncate table songs_instance
+    
+    
+  INSERT INTO songs_instance
+select S.trackid,
+    0,
+    S.song,
+    S.artist,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    S.year,
+    N.duration,
+    0,
+    0,
+    N.key_song,
+    N.loudness,
+    N.mode,
+    0,
+    0,
+    N.tempo,
+    N.time_signature,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    K.genre,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+   NULL,
+    NULL,
+    NULL,
+    'Added'
+    from songs_dataset S  
+    join (select distinct artist_left, song_left, artist_right, song_right from fuzzy_match_SD_LK F
+				where F.match_score > 0.28) F1 on S.artist = F1.artist_left and S.song = F1.song_left
+    JOIN lyrics_kaggle K on F1.artist_right = K.artist and F1.song_right = K.song
+    JOIN songs_new_features N on S.trackid = N.track_id
+    WHERE K.genre <> 'Not Available' and K.genre is not null
+    and S.trackid not in (SELECT trackid from songs_instance);
     
     
    
