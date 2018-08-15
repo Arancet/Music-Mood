@@ -130,3 +130,44 @@ and origin_source = 'ORIGINAL';
 -- UPDATE songs_instance
 -- SET weeks_at_number_1 = 0
 -- where weeks_at_number_1 IS NULL
+--
+-- UPDATE songs_instance A,
+-- (
+--   SELECT artist, AVG(words_song_u) prom
+--   from songs_instance
+--   where words_song_u is NOT null
+--   AND   artist IN
+--   (
+--     SELECT artist
+--     from songs_instance
+--     where words_song_u is null
+--   )
+--   GROUP BY artist
+-- )B
+-- SET A.words_song_u = B.prom
+-- WHERE A.artist = B.artist
+-- AND words_song_u is null;
+
+
+-- UPDATE songs_instance A,
+-- (
+--   SELECT artist, AVG(words_song) prom
+--   from songs_instance
+--   where words_song is NOT null
+--   AND   artist IN
+--   (
+--     SELECT artist
+--     from songs_instance
+--     where words_song is null
+--   )
+--   GROUP BY artist
+-- )B
+-- SET A.words_song = B.prom
+-- WHERE A.artist = B.artist
+-- AND words_song is null
+
+select artist, (words_song_u), (words_song)
+from songs_instance
+where artist = 'The Beatles'
+-- and words_song is null
+-- group by artist
