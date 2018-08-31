@@ -1,0 +1,277 @@
+ALL_FEATURES
+
+SHAPE
+SONGS (12255, 34)
+TRAIN(12174, 33)
+VALIDATION(3044, 33)
+
+PCA 18
+
+ACCURACY
+RFC
+CV accuracy: 0.75062 +/- 0.01159
+--- 56.90824222564697 seconds ---
+LRG
+CV accuracy: 0.69542 +/- 0.01381
+--- 2.0378012657165527 seconds ---
+ABC
+CV accuracy: 0.70273 +/- 0.01269
+--- 15.783019065856934 seconds ---
+
+PRECISION
+
+RFC
+CV accuracy: 0.72613 +/- 0.01736
+--- 56.417564868927 seconds ---
+LRG
+CV accuracy: 0.67628 +/- 0.01989
+--- 2.0246081352233887 seconds ---
+ABC
+CV accuracy: 0.68662 +/- 0.01763
+--- 15.764777898788452 seconds ---
+
+LASSO_FEATURES
+
+SHAPE
+SONGS (12255, 25)
+TRAIN(12174, 24)
+VALIDATION(3044, 24)
+
+PCA 18
+
+ACCURACY
+RFC
+CV accuracy: 0.74988 +/- 0.01317
+--- 54.828675985336304 seconds ---
+LRG
+CV accuracy: 0.69320 +/- 0.01454
+--- 1.7719249725341797 seconds ---
+ABC
+CV accuracy: 0.70429 +/- 0.01026
+--- 15.719765901565552 seconds ---
+
+PRECISION
+
+RFC
+CV accuracy: 0.72628 +/- 0.01942
+--- 54.30878806114197 seconds ---
+LRG
+CV accuracy: 0.67701 +/- 0.02222
+--- 1.7718639373779297 seconds ---
+ABC
+CV accuracy: 0.68772 +/- 0.01976
+--- 15.489191055297852 seconds ---
+
+
+
+RIDGE FEATURES
+
+SHAPE
+SONGS (12255, 13)
+TRAIN(12174, 12)
+VALIDATION(3044, 12)
+
+PCA 12
+
+ACCURACY
+
+RFC
+CV accuracy: 0.72392 +/- 0.00845
+--- 42.66529607772827 seconds ---
+LRG
+CV accuracy: 0.60859 +/- 0.01073
+--- 0.6666109561920166 seconds ---
+ABC
+CV accuracy: 0.64178 +/- 0.01226
+--- 9.76980972290039 seconds ---
+
+PRECISION
+
+RFC
+CV accuracy: 0.71671 +/- 0.01524
+--- 42.38563680648804 seconds ---
+LRG
+CV accuracy: 0.60712 +/- 0.01782
+--- 0.6787989139556885 seconds ---
+ABC
+CV accuracy: 0.63774 +/- 0.01246
+--- 9.829475164413452 seconds ---
+
+
+ELASTICNET FEATURES
+
+SHAPE
+SONGS (12255, 15)
+TRAIN(12174, 14)
+VALIDATION(3044, 14)
+
+PCA 12
+
+ACCURACY
+
+RFC
+CV accuracy: 0.72244 +/- 0.01768
+--- 41.291435956954956 seconds ---
+LRG
+CV accuracy: 0.67627 +/- 0.01433
+--- 0.779386043548584 seconds ---
+ABC
+CV accuracy: 0.68424 +/- 0.01662
+--- 10.437447786331177 seconds ---
+
+PRECISION
+
+RFC
+CV accuracy: 0.70756 +/- 0.02301
+--- 40.422932147979736 seconds ---
+LRG
+CV accuracy: 0.66257 +/- 0.02100
+--- 0.7735710144042969 seconds ---
+ABC
+CV accuracy: 0.65889 +/- 0.02025
+--- 10.41211986541748 seconds ---
+
+
+RANDOM FOREST FEATURES
+
+SHAPE
+SONGS (12255, 11)
+TRAIN(12174, 10)
+VALIDATION(3044, 10)
+
+PCA 10
+
+ACCURACY
+RFC
+CV accuracy: 0.73706 +/- 0.01752
+--- 45.397045850753784 seconds ---
+LRG
+CV accuracy: 0.67882 +/- 0.01599
+--- 0.7163200378417969 seconds ---
+ABC
+CV accuracy: 0.69994 +/- 0.01314
+--- 9.041143894195557 seconds ---
+
+PRECISION
+
+RFC
+CV accuracy: 0.71125 +/- 0.02310
+--- 44.92825126647949 seconds ---
+LRG
+CV accuracy: 0.66435 +/- 0.02168
+--- 0.7093150615692139 seconds ---
+ABC
+CV accuracy: 0.68042 +/- 0.01871
+--- 9.02761697769165 seconds ---
+
+
+LOGISTIC REGRESSION FEATURES
+
+SHAPE
+SONGS (12255, 13)
+TRAIN(12174, 12)
+VALIDATION(3044, 12)
+
+PCA 12
+
+ACCURACY
+
+RFC
+CV accuracy: 0.69188 +/- 0.01189
+--- 42.75759315490723 seconds ---
+LRG
+CV accuracy: 0.61779 +/- 0.00817
+--- 0.6385340690612793 seconds ---
+ABC
+CV accuracy: 0.63603 +/- 0.01302
+--- 8.50493597984314 seconds ---
+
+
+PRECISION
+
+RFC
+CV accuracy: 0.68569 +/- 0.01555
+--- 42.24026894569397 seconds ---
+LRG
+CV accuracy: 0.61030 +/- 0.01415
+--- 0.6426711082458496 seconds ---
+ABC
+CV accuracy: 0.63367 +/- 0.01669
+--- 8.493401050567627 seconds ---
+
+
+ADABOOST FEATURES
+SHAPE
+SONGS (12255, 9)
+TRAIN(12174, 8)
+VALIDATION(3044, 8)
+
+PCA 8
+
+ACCURACY
+
+RFC
+CV accuracy: 0.73607 +/- 0.01876
+--- 32.257142066955566 seconds ---
+LRG
+CV accuracy: 0.67586 +/- 0.01486
+--- 0.5863912105560303 seconds ---
+ABC
+CV accuracy: 0.69008 +/- 0.02078
+--- 7.7291858196258545 seconds ---
+
+PRECISION
+
+RFC
+CV accuracy: 0.70842 +/- 0.02535
+--- 31.643807888031006 seconds ---
+LRG
+CV accuracy: 0.66131 +/- 0.02078
+--- 0.5702078342437744 seconds ---
+ABC
+CV accuracy: 0.67000 +/- 0.02586
+--- 7.6151628494262695 seconds ---
+
+
+ALL_FEATURES AVOID COLLINEARITY
+
+SHAPE
+SONGS (12255, 28)
+TRAIN(12174, 27)
+VALIDATION(3044, 27)
+
+PCA 27
+
+
+ACCURACY
+
+RFC
+CV accuracy: 0.75324 +/- 0.01135
+--- 67.1561529636383 seconds ---
+LRG
+CV accuracy: 0.70412 +/- 0.01671
+--- 1.8792588710784912 seconds ---
+ABC
+CV accuracy: 0.70470 +/- 0.01342
+--- 21.592200994491577 seconds ---
+
+
+PRECISION
+
+RFC
+CV accuracy: 0.73403 +/- 0.02062
+--- 66.332035779953 seconds ---
+LRG
+CV accuracy: 0.68304 +/- 0.02242
+--- 1.9576599597930908 seconds ---
+ABC
+CV accuracy: 0.68864 +/- 0.02208
+--- 21.713453769683838 seconds ---
+
+
+
+
+
+
+
+
