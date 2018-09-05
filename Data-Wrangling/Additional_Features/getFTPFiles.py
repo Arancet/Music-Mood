@@ -14,11 +14,7 @@ The repository is a FTP Server (Not SFTP)
 Detailed information related with this project and technical description can be found 
 at https://musicbrainz.org/doc/MusicBrainz_Server/Setup
 
-General structure of the tar files:
-tarfile = '<path>/<Letter>.tar.gz'
-
-General format of the HDF5 file:
-filename = '<path>/<internal sub-directory structure>/<song-id>.h5'
+Check the detailed technical information to set up the Virtual machine
 
 Copyright 2018, Ivan Narvaez
 
